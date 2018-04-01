@@ -16,23 +16,20 @@
 #include <io.h>
 #include <dos.h>
 
-MYSHARED_API int Move(int move, double time_left)
+MYSHARED_API int Move(int move, double time_left, int current_level)
 {
 	int m = 0;
 	char input;
-
-	if (time_left < 0)
+		
+	if (move == -666)
 	{
-		bool legal = play(move / 100, move % 100);
-		moves++;
-		computer = 1 - computer;
+		takeback();
+		moves--;
 		return 0;
 	}
 
-	max_time = time_left;
-	if (move == 0)
+	else if (move == 0)
 	{
-		max_depth = 5;
 		increment = 0;
 
 		/*for (double i = 0; i < 200; i += 2)
@@ -53,15 +50,45 @@ MYSHARED_API int Move(int move, double time_left)
 
 		return 0;
 	}
-	
-	else if (move == -6 || move == -16) computer = WHITE;
-	else if (move == -7 || move == -17) computer = BLACK;
-	else if (move == -666)
+
+	if (ply - fifty >= 100)
 	{
-		takeback();
-		moves--;
+		return -100;
+	}
+
+	for (int i = 0; i < repcount; i++)
+	{
+		if (reps[i] >= 3)
+		{
+			return -100;
+		}
+	}
+
+	if (current_level == -1)
+	{
+		bool legal = play(move / 100, move % 100);
+		if (legal)
+		{
+			takeback();
+			return 1;
+		}
+
+		else return 0;
+	}
+
+	if (time_left < 0)
+	{
+		bool legal = play(move / 100, move % 100);
+		moves++;
+		computer = 1 - computer;
 		return 0;
 	}
+
+	max_time = time_left * current_level / 10;
+	max_depth = current_level;
+	
+	if (move == -6 || move == -16) computer = WHITE;
+	else if (move == -7 || move == -17) computer = BLACK;
 
 	else if (move > 0)
 	{
@@ -170,8 +197,7 @@ int compmove(int player, int d)
 		//printf("%d. %d with count %d\n", i, hashes[i], reps[i]);
 		if (reps[i] >= 3)
 		{
-			finish(0);
-			return 0;
+			return -100;
 		}
 	}
 
@@ -183,22 +209,20 @@ int compmove(int player, int d)
 	int elapsed = clock() - start_time;
 	max_time -= elapsed - increment;
 
-	if (max_time < 0)
+	/*if (max_time < 0)
 	{
 		finish(4 * sideToMove - 2);
 		return 0;
-	}
+	}*/
 
 	if (square == -12345 || square == 12345 || square == 0)
 	{
-		finish(square / 12345);
-		return 0;
+		return -100 + (square / 12345);
 	}
 
 	if (ply - fifty >= 100)
 	{
-		finish(0);
-		return 0;
+		return -100;
 	}
 
 	int from = square / 100;

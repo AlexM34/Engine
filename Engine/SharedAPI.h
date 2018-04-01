@@ -4,7 +4,7 @@
 
 extern "C"
 {
-	MYSHARED_API int Move(int move, double time_left);
+	MYSHARED_API int Move(int move, double time_left, int current_level);
 }
 
 class SharedAPI
