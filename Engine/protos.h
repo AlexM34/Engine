@@ -26,8 +26,6 @@ void square(int coo);
 void thinkingTime ();
 int think (int depth);
 int alphaBeta (int alpha, int beta, int depth);
-int alphaBetaMax (int alpha, int beta, int depth);
-int alphaBetaMin (int alpha, int beta, int depth);
 
 /* evaluation.cpp */
 int position();
@@ -39,10 +37,8 @@ void close_book();
 int book_move();
 bool book_match(char *s1, char *s2);
 
-/* main.cpp */
-int main();
+/* SharedAPI.cpp */
+int Move(int move, double time_left, int current_level);
 int parse (char input[64]);
 char* notation (int m);
 int compmove(int player, int d);
-int humanmove (int player);
-void print();

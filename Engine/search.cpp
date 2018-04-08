@@ -29,7 +29,6 @@ void thinkingTime ()
     if (m > 20 && spent < increment && max_time > spent + increment) spent += increment;
     start_time = clock();
     stop_time = start_time + spent;
-    //printf("%d. %fs or %f percent spent from %fs remaining\n", (int) m + 1, spent / 1000, 100 * spent / (600000 + 60 * increment), (max_time - spent + increment) / 1000);
 }
 
 int think (int depth)
@@ -40,7 +39,6 @@ int think (int depth)
     {
         nodes = 0;
         best = alphaBeta(-100000, 100000, i);
-        printf("nodes for %d are %d\n", i, nodes);
     }
 
     return best;
@@ -108,11 +106,9 @@ int alphaBeta(int alpha, int beta, int depth)
         to = list_moves[current][1];
         last[ply] = 100 * from + to;
         promotion = list_moves[current][2];
-        //if (color[to] == 1 - sideToMove && next < depth && ply - moves < 10) caps++;
         legal = play(from, to);
         nodes++;
 
-        if (!legal) {print(); printf("FALSEEEEEEEEEE\n"); square(from); square(to);}
         if (legal)
         {
             index = analyzed(hashing);
@@ -151,7 +147,6 @@ int alphaBeta(int alpha, int beta, int depth)
             {
                 square(from);
                 square(to);
-                printf("%d\n", (2 * sideToMove - 1) * score);
             }
 
             takeback();
@@ -181,7 +176,6 @@ int alphaBeta(int alpha, int beta, int depth)
     {
         promotion = pr;
         evaluation = (1 - 2 * sideToMove) * alpha;
-        printf("%d IS BEST for depth %d\n", best, depth);
         return best;
     }
 }

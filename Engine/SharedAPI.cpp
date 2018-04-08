@@ -32,13 +32,6 @@ MYSHARED_API int Move(int move, double time_left, int current_level)
 	{
 		increment = 0;
 
-		/*for (double i = 0; i < 200; i += 2)
-		{
-		thinkingTime();
-		max_time -= (stop_time - start_time) - increment;
-		ply += 2;
-		}*/
-
 		initialise();
 		init_hash();
 		open_book();
@@ -84,8 +77,21 @@ MYSHARED_API int Move(int move, double time_left, int current_level)
 		return 0;
 	}
 
-	max_time = time_left * current_level / 10;
-	max_depth = current_level;
+	max_time = time_left;
+
+	switch (current_level)
+	{
+		case 1: max_time /= 10000000; max_depth = 1; break;
+		case 2: max_time /= 10000; max_depth = 1; break;
+		case 3: max_time /= 100; max_depth = 2; break;
+		case 4: max_time /= 25; max_depth = 2; break;
+		case 5: max_time /= 10; max_depth = 3; break;
+		case 6: max_time /= 5; max_depth = 4; break;
+		case 7: max_time /= 3; max_depth = 5; break;
+		case 8: max_time /= 2; max_depth = 7; break;
+		case 9: max_time /= 1.5; max_depth = 10; break;
+		default: max_depth = 20; break;
+	}
 	
 	if (move == -6 || move == -16) computer = WHITE;
 	else if (move == -7 || move == -17) computer = BLACK;
@@ -117,8 +123,6 @@ MYSHARED_API int Move(int move, double time_left, int current_level)
 	}
 
 	return m;
-	
-	//close_book();
 }
 
 int parse(char input[64])
@@ -194,7 +198,6 @@ int compmove(int player, int d)
 {
 	for (int i = 0; i < repcount; i++)
 	{
-		//printf("%d. %d with count %d\n", i, hashes[i], reps[i]);
 		if (reps[i] >= 3)
 		{
 			return -100;
@@ -206,14 +209,6 @@ int compmove(int player, int d)
 	for (int i = 0; i < 100; i++) dcount[i] = 0;
 	thinkingTime();
 	int square = think(d);
-	int elapsed = clock() - start_time;
-	max_time -= elapsed - increment;
-
-	/*if (max_time < 0)
-	{
-		finish(4 * sideToMove - 2);
-		return 0;
-	}*/
 
 	if (square == -12345 || square == 12345 || square == 0)
 	{
@@ -230,84 +225,13 @@ int compmove(int player, int d)
 	last[ply] = square;
 
 	bool legal = play(from, to);
-	if (!legal) printf("FALSEEEEEE\n");
-	char comp_move[4];
-	comp_move[0] = (char)(from % 8 + 'a');
-	comp_move[1] = (char)((8 - from / 8) + '0');
-	comp_move[2] = (char)(to % 8 + 'a');
-	comp_move[3] = (char)((8 - to / 8) + '0');
 
-	printf("play %d, valid %d, legal %d, capt %d\n", playcount, validcount, legalcount, captcount);
 	playcount = 0, validcount = 0, legalcount = 0, captcount = 0;
-
-	for (int i = 0; i < 10; i++) printf("%d. %d\n", i, dcount[i]);
-	printf("\nPVcount: %d\n", pvcount);
-	printf("hits: %d\n 1. %d 2. %d 3. %d\n", hits, t1, t2, t3);
-	printf("The evaluation is %d and square is %d\n", evaluation, square);
 	pvcount = 0;
 	hits = 0;
 	hashcount = 0;
 
-	printf("ELAPSED: %d, REMAINING: %d\n", elapsed, max_time);
-	printf("Computer's move: %d. %c%c%c%c %d %d\n", ply, comp_move[0], comp_move[1], comp_move[2], comp_move[3], (1 - 2 * sideToMove) * capturing(sideToMove), hashcount);
 	return square;
-}
-
-int humanmove(int player)
-{
-	for (int i = 0; i < repcount; i++)
-	{
-		//printf("%d. %d with count %d\n", i, hashes[i], reps[i]);
-		if (reps[i] >= 3)
-		{
-			finish(0);
-			return 0;
-		}
-	}
-
-	legalmoves(player);
-	int m = -1;
-	char input[64];
-	if (possible[0][1] == -1)
-	{
-		if (checked(player)) finish(2 * player - 1);
-		else finish(0);
-		return 0;
-	}
-
-	if (ply - fifty >= 100)
-	{
-		finish(0);
-		return 0;
-	}
-
-	while (m != 1)
-	{
-		printf("Your move: ");
-		scanf("%64s", input);
-		m = parse(input);
-		if (m == -2) printf("The evaluation is %d\n", position());
-		if (m == -3) printf("The capturing is %d\n", capturing(player * (1 - 2 * sideToMove)));
-		if (m == -4) return 2;
-	}
-
-	return 1;
-}
-
-void print()
-{
-	printf("\n8 ");
-	for (int i = 0; i < 64; i++)
-	{
-		if (color[i] == EMPTY) printf(" .");
-
-		else if (color[i] == WHITE) printf(" %c", piece_letter[piece[i]]);
-
-		else printf(" %c", piece_letter[piece[i]] + ('a' - 'A'));
-
-		if ((i + 1) % 8 == 0 && i != 63) printf("\n%d ", 7 - i / 8);
-	}
-	printf("\n\n   a b c d e f g h\n\n");
 }
 
 SharedAPI::SharedAPI()

@@ -104,8 +104,8 @@ int hash_rand()
 {
 	int r = 0;
 
-	for (int i = 0; i < 32; i++)
-		r ^= rand() << i;
+	for (int i = 0; i < 32; i++) r ^= rand() << i;
+
 	return r;
 }
 
